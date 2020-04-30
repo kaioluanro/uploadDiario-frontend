@@ -25,16 +25,19 @@ const FileList = ({ files, onDelete }) => (
         </FileInfo>
 
         <div>
-          {!uploadedFile.uploaded && !uploadedFile.error && (document.getElementById('content').style.animationPlayState = 'running') && (
-            <CircularProgressbar
-              styles={{
-                root: { width: 24 },
-                path: { stroke: "#7159c1" },
-              }}
-              strokeWidth={25}
-              value={uploadedFile.progress}
-            />
-          ) }
+          {!uploadedFile.uploaded &&
+            !uploadedFile.error &&
+            (document.getElementById("content").style.animationPlayState =
+              "running") && (
+              <CircularProgressbar
+                styles={{
+                  root: { width: 24 },
+                  path: { stroke: "#7159c1" },
+                }}
+                strokeWidth={25}
+                value={uploadedFile.progress}
+              />
+            )}
 
           {uploadedFile.url && (
             <a

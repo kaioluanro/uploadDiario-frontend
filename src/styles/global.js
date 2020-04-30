@@ -2,8 +2,15 @@ import { createGlobalStyle } from "styled-components";
 
 import "react-circular-progressbar/dist/styles.css";
 
+import coolveticaFontTff from "../assets/fonts/coolvetica_rg.ttf";
+
 export default createGlobalStyle`
-				*{
+				@font-face {
+								font-family: 'Coolvetica';
+								src: url(${coolveticaFontTff});								
+				}
+
+		   *{
 								margin:0;
 								padding:0;
 								outline:0;
@@ -19,7 +26,7 @@ export default createGlobalStyle`
 				}
 
 				html, body, #root {
+			
 								height:100%;
 				}
 `;
-

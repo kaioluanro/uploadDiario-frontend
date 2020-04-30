@@ -1,10 +1,10 @@
-import React, { Component} from "react";
+import React, { Component } from "react";
 import { uniqueId } from "lodash";
 import filesize from "filesize";
 import api from "./services/api";
 
 import GlobalStyle from "./styles/global";
-import { Content, Container } from "./styles";
+import { Content, Container, BgAnimated } from "./styles";
 import Upload from "./components/Upoload";
 import FileList from "./components/FileList";
 
@@ -14,18 +14,17 @@ class App extends Component {
   };
 
   async componentDidMount() {
+    const response = await api.get("posts");
 
-      const response = await api.get("posts");
-
-      this.setState({
-        uploadedFiles: response.data.map((file) => ({
-          id: file._id,
-          name: file.name,
-          readableSize: filesize(file.size),
-          uploaded: true,
-          url: file.url,
-        })),
-      });
+    this.setState({
+      uploadedFiles: response.data.map((file) => ({
+        id: file._id,
+        name: file.name,
+        readableSize: filesize(file.size),
+        uploaded: true,
+        url: file.url,
+      })),
+    });
   }
 
   handleUpload = (files) => {
@@ -41,7 +40,7 @@ class App extends Component {
     }));
 
     this.setState({
-      uploadedFiles: this.state.uploadedFiles.reverse().concat(uploadedFiles),
+      uploadedFiles: this.state.uploadedFiles.concat(uploadedFiles).reverse(),
     });
     uploadedFiles.forEach(this.processUpload);
   };
@@ -53,8 +52,7 @@ class App extends Component {
           ? { ...uploadedFiles, ...data }
           : uploadedFiles;
       }),
-    }
-    );
+    });
   };
 
   processUpload = (uploadedFile) => {
@@ -62,8 +60,13 @@ class App extends Component {
 
     data.append("file", uploadedFile.file, uploadedFile.name);
 
-    api.post("/posts", data, {
+    api
+      .post("/posts", data, {
         onUploadProgress: (e) => {
+          document.getElementById("bgAnimated").style.animationPlayState =
+            "running";
+          document.getElementById("bgAnimated").innerText = "upload";
+          document.getElementById("bgAnimated").style.fontSize = "30em";
           const progress = parseInt(Math.round((e.loaded * 100) / e.total));
           this.updateFile(uploadedFile.id, {
             progress,
@@ -76,9 +79,24 @@ class App extends Component {
           id: response.data._id,
           url: response.data.url,
         });
-        document.location.reload(true)
+        document.getElementById("bgAnimated").innerText = "sucesso";
+        document.getElementById("bgAnimated").style.fontSize = "30em";
+        document.getElementById("bgAnimated").style.color = "#72F296";
+        setTimeout(() => {
+          document.getElementById("bgAnimated").style.fontSize = "47em";
+          document.getElementById("bgAnimated").innerText = "diário";
+          document.getElementById("bgAnimated").style.color = "#EBEBEB";
+          document.getElementById("bgAnimated").style.animationPlayState =
+            "paused";
+          document.getElementById("bgAnimated").style.opacity = 1;
+        }, 3000);
       })
       .catch(() => {
+        document.getElementById("bgAnimated").innerText = "erro";
+
+        document.getElementById("bgAnimated").style.color = "#E65847";
+        document.getElementById("bgAnimated").style.animationPlayState =
+          "paused";
         this.updateFile(uploadedFile.id, {
           error: true,
         });
@@ -86,7 +104,26 @@ class App extends Component {
   };
 
   handleDelete = async (id) => {
-    await api.delete(`posts/${id}`);
+    document.getElementById("bgAnimated").style.animationPlayState = "running";
+    document.getElementById("bgAnimated").style.color = "#e65847";
+    document.getElementById("bgAnimated").innerText = "excluindo";
+    document.getElementById("bgAnimated").style.fontSize = "28em";
+
+    await api.delete(`posts/${id}`).then(() => {
+      setTimeout(() => {
+        document.getElementById("bgAnimated").style.fontSize = "30em";
+        document.getElementById("bgAnimated").innerText = "sucesso";
+        document.getElementById("bgAnimated").style.color = "#72F296";
+        setTimeout(() => {
+          document.getElementById("bgAnimated").style.fontSize = "47em";
+          document.getElementById("bgAnimated").innerText = "diário";
+          document.getElementById("bgAnimated").style.color = "#EBEBEB";
+          document.getElementById("bgAnimated").style.animationPlayState =
+            "paused";
+          document.getElementById("bgAnimated").style.opacity = 1;
+        }, 2000);
+      }, 1000);
+    });
 
     this.setState({
       uploadedFiles: this.state.uploadedFiles.filter((file) => file.id !== id),
@@ -97,10 +134,15 @@ class App extends Component {
     const { uploadedFiles } = this.state;
     return (
       <Container>
-        <Content id='content'>
+        <BgAnimated id="bgAnimated">diário</BgAnimated>
+        <Content id="content">
           <Upload onUpload={this.handleUpload} />
           {!!uploadedFiles.length && (
-            <FileList files={uploadedFiles} onDelete={this.handleDelete} attListFiles={this.attListFiles} />
+            <FileList
+              files={uploadedFiles}
+              onDelete={this.handleDelete}
+              attListFiles={this.attListFiles}
+            />
           )}
         </Content>
         <GlobalStyle />
