@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component} from "react";
 import { uniqueId } from "lodash";
 import filesize from "filesize";
 import api from "./services/api";
@@ -13,21 +13,8 @@ class App extends Component {
     uploadedFiles: [],
   };
 
-  updateListFile = () => {};
-
   async componentDidMount() {
-    const response = await api.get("posts");
 
-    this.setState({
-      uploadedFiles: response.data.map((file) => ({
-        id: file._id,
-        name: file.name,
-        readableSize: filesize(file.size),
-        uploaded: true,
-        url: file.url,
-      })),
-    });
-    setInterval(async () => {
       const response = await api.get("posts");
 
       this.setState({
@@ -39,7 +26,6 @@ class App extends Component {
           url: file.url,
         })),
       });
-    }, 5000);
   }
 
   handleUpload = (files) => {
@@ -55,7 +41,7 @@ class App extends Component {
     }));
 
     this.setState({
-      uploadedFiles: this.state.uploadedFiles.concat(uploadedFiles),
+      uploadedFiles: this.state.uploadedFiles.reverse().concat(uploadedFiles),
     });
     uploadedFiles.forEach(this.processUpload);
   };
@@ -67,7 +53,8 @@ class App extends Component {
           ? { ...uploadedFiles, ...data }
           : uploadedFiles;
       }),
-    });
+    }
+    );
   };
 
   processUpload = (uploadedFile) => {
@@ -75,8 +62,7 @@ class App extends Component {
 
     data.append("file", uploadedFile.file, uploadedFile.name);
 
-    api
-      .post("/posts", data, {
+    api.post("/posts", data, {
         onUploadProgress: (e) => {
           const progress = parseInt(Math.round((e.loaded * 100) / e.total));
           this.updateFile(uploadedFile.id, {
@@ -90,6 +76,7 @@ class App extends Component {
           id: response.data._id,
           url: response.data.url,
         });
+        document.location.reload(true)
       })
       .catch(() => {
         this.updateFile(uploadedFile.id, {
@@ -108,13 +95,12 @@ class App extends Component {
 
   render() {
     const { uploadedFiles } = this.state;
-
     return (
       <Container>
-        <Content>
+        <Content id='content'>
           <Upload onUpload={this.handleUpload} />
           {!!uploadedFiles.length && (
-            <FileList files={uploadedFiles} onDelete={this.handleDelete} />
+            <FileList files={uploadedFiles} onDelete={this.handleDelete} attListFiles={this.attListFiles} />
           )}
         </Content>
         <GlobalStyle />

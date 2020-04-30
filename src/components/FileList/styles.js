@@ -7,10 +7,14 @@ export const Container = styled.ul`
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 2px dotted #7124ef;
     color: #444;
+    padding:10px;
+    border-radius:10px;
 
     & + li {
       margin-top: 15px;
+      border:none;
     }
   }
 `;
