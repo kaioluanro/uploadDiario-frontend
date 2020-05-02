@@ -12,13 +12,13 @@ import FileList from "./components/FileList";
 class App extends Component {
   state = {
     uploadedFiles: [],
-    socket: io("http://localhost:3335"),
+    socket: io(process.env.REACT_APP_API_SOKECT_URL),
   };
 
   async componentDidMount() {
     const response = await api.get("posts");
 
-    const socket = io("http://localhost:3335");
+    const socket = io(process.env.REACT_APP_API_SOKECT_URL);
     socket.on("connect", () => {
       socket.on("news", (cmd) => {
         console.log(cmd);
