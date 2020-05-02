@@ -6,7 +6,7 @@ import { DropContainer, UploadMessage } from "./styles";
 export default class Upload extends Component {
   renderDragMessage = (isDragActive, isDragReject) => {
     if (!isDragActive) {
-      return <UploadMessage>Arraste e Jogue o Diarios Aqui...</UploadMessage>;
+      return <UploadMessage>Arraste e Jogue os Diarios Aqui...</UploadMessage>;
     }
 
     if (isDragReject) {

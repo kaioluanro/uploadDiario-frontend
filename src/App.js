@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { uniqueId } from "lodash";
 import filesize from "filesize";
 import api from "./services/api";
+import io from "socket.io-client";
 
 import GlobalStyle from "./styles/global";
 import { Content, Container, BgAnimated } from "./styles";
@@ -11,10 +12,23 @@ import FileList from "./components/FileList";
 class App extends Component {
   state = {
     uploadedFiles: [],
+    socket: io("http://localhost:3335"),
   };
 
   async componentDidMount() {
     const response = await api.get("posts");
+
+    const socket = io("http://localhost:3335");
+    socket.on("connect", () => {
+      socket.on("news", (cmd) => {
+        console.log(cmd);
+        if (cmd.msg === true) {
+          document.location.reload(true);
+        } else {
+          console.error("Error: comando nao recebido!!");
+        }
+      });
+    });
 
     this.setState({
       uploadedFiles: response.data.map((file) => ({
@@ -82,6 +96,9 @@ class App extends Component {
         document.getElementById("bgAnimated").innerText = "sucesso";
         document.getElementById("bgAnimated").style.fontSize = "30em";
         document.getElementById("bgAnimated").style.color = "#72F296";
+
+        this.state.socket.send(true);
+
         setTimeout(() => {
           document.getElementById("bgAnimated").style.fontSize = "47em";
           document.getElementById("bgAnimated").innerText = "diário";
@@ -111,6 +128,8 @@ class App extends Component {
 
     await api.delete(`posts/${id}`).then(() => {
       setTimeout(() => {
+        this.state.socket.send(true);
+
         document.getElementById("bgAnimated").style.fontSize = "30em";
         document.getElementById("bgAnimated").innerText = "sucesso";
         document.getElementById("bgAnimated").style.color = "#72F296";
